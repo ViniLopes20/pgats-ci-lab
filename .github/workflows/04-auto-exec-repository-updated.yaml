@@ -1,0 +1,76 @@
+# CI de Nível 04 - Disparo automático quando tiver um update no repositório (push, pull_request)
+
+# Nome do pipeline
+name: 'CI E2E Tests - PR e Push'
+
+# Regras de disparo (gatilhos ou triggers)
+# Gatilho de execução automática
+#   - push = quando houver um push na branch main
+#   - pull_request = quando houver a abertura de um pull request para a branch main
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+# Trabalhos/tarefas dentro do pipeline = jobs
+jobs:
+  # Nome do trabalho
+  e2e-tests:
+    # Máquina onde o job será executado
+    runs-on: ubuntu-latest
+
+    # Passos do script do build
+    steps:
+      # Somente se for push
+      - name: Somente se for push
+        if: github.event_name == 'push'
+        run: echo "Isso só roda em push"
+
+      # Somente se for pull_request
+      - name: Somente se for pull_request
+        if: github.event_name == 'pull_request'
+        run: echo "Isso só roda em pull_request"
+
+      # Clone do projeto
+      - uses: actions/checkout@v4
+
+      # Intalação do node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      # Instalação do yarn
+      - name: Instalando yarn
+        run: npm install -g yarn
+
+      # Instalação das dependências do projeto
+      - name: Instalando dependências do projeto
+        run: yarn
+
+      # Instalação do Playwright
+      - name: Instalando Playwright
+        run: yarn playwright install
+
+      # Executar testes com geração de relatórios HTML e JSON
+      - name: Executar testes E2E com geração de relatórios
+        run: npx playwright test --reporter=html,json
+
+      # Faz o upload do relatório HTML como artefato (mesmo se falhar)
+      - name: Upload do relatório Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+      # Comentar no PR com resumo dos testes + link para o HTML
+      - name: Comentar resumo do relatório Playwright no PR
+        if: github.event_name == 'pull_request'
+        uses: daun/playwright-report-summary@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          report-file: playwright-report.json
