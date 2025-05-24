@@ -57,7 +57,7 @@ jobs:
 
       # Executar testes com geração de relatórios HTML e JSON
       - name: Executar testes E2E com geração de relatórios
-        run: npx playwright test --reporter=html,json
+        run: PLAYWRIGHT_JSON_OUTPUT_NAME=playwright-report.json npx playwright test --reporter=json,html
 
       # Faz o upload do relatório HTML como artefato (mesmo se falhar)
       - name: Upload do relatório Playwright
@@ -70,7 +70,9 @@ jobs:
       # Comentar no PR com resumo dos testes + link para o HTML
       - name: Comentar resumo do relatório Playwright no PR
         if: github.event_name == 'pull_request'
-        uses: daun/playwright-report-summary@v2
+        uses: daun/playwright-report-summary@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           report-file: playwright-report.json
+          report-tag: 'e2e-tests'
+          custom-info: '[Clique aqui para baixar o relatório HTML completo do report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})'
