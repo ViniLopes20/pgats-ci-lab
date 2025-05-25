@@ -1,25 +1,21 @@
-# CI de Nível 04 - Disparo automático quando tiver um update no repositório (push, pull_request)
+# CI de Nível 05 - Disparo usando o seguinte comando: ci:test:e2e
 
 # Nome do pipeline
-name: 'CI E2E Tests - PR e Push'
+name: 'CI E2E Tests - Command Trigger'
 
 # Regras de disparo (gatilhos ou triggers)
-# Gatilho de execução automática
-#   - push = quando houver um push na branch main
-#   - pull_request = quando houver a abertura de um pull request para a branch main
+# Gatilho de execução usando o comando: ci:test:e2e
 on:
-  push:
-    branches:
-      - main
-
-  pull_request:
-    branches:
-      - main
+  issue_comment:
+    types: [created]
 
 # Trabalhos/tarefas dentro do pipeline = jobs
 jobs:
   # Nome do trabalho
   e2e-tests:
+    # Garante que só responde a comentários em Pull Requests (e não em Issues) e só executa se o comentário for exatamente o comando ci:test:e2e
+    if: github.event.issue.pull_request && github.event.comment.body == 'ci:test:e2e'
+
     # Máquina onde o job será executado
     runs-on: ubuntu-latest
 
@@ -69,7 +65,7 @@ jobs:
 
       # Comentar no PR com resumo dos testes + link para o HTML
       - name: Comentar resumo do relatório Playwright no PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'issue_comment'
         uses: daun/playwright-report-summary@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
