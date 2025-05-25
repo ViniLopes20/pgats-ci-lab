@@ -20,7 +20,7 @@ jobs:
       # Clone do projeto
       - uses: actions/checkout@v4
 
-      # Intalação do node.js
+      # Instalação do node.js
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
