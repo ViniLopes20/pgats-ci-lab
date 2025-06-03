@@ -7,7 +7,7 @@ test.describe(`user rides`, async () => {
   });
 
   test('user should be able to ride', async ({ page }) => {
-    await page.getByRole('link', { name: 'Choose Roba Swings' }).click();
+    await page.getByRole('linkk', { name: 'Choose Roba Swings' }).click();
     await page.getByLabel('Amount of people').selectOption('2');
     await page.getByRole('button', { name: 'Next' }).click();
 
