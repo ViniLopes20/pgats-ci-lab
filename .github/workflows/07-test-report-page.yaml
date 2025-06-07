@@ -1,0 +1,48 @@
+# CI de Nível 07 - Test Report Page
+
+# Nome do pipeline
+name: 'Execução com Test Report Page'
+on:
+  workflow_dispatch:
+
+# Trabalhos/tarefas dentro do pipeline = jobs
+jobs:
+  # Nome do trabalho
+  e2e-tests:
+    # Máquina onde o job será executado
+    runs-on: ubuntu-latest
+
+    # Passos do script do build
+    steps:
+      # Clone do projeto
+      - uses: actions/checkout@v4
+
+      # Instalação do node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      # Instalação do yarn
+      - name: Instalando yarn
+        run: npm install -g yarn
+
+      # Instalação das dependências do projeto
+      - name: Instalando dependências do projeto
+        run: yarn
+
+      # Instalação do Playwright
+      - name: Instalando Playwright
+        run: yarn playwright install
+
+      # Execução dos testes
+      - name: Executando Testes E2E
+        run: yarn run e2e
+
+      # Gera o relatório após os testes
+      - name: Publicar resultado no PR
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Report
+          path: ./test-results/results.xml
+          reporter: java-junit
