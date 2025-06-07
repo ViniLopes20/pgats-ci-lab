@@ -31,6 +31,19 @@ jobs:
       - name: Executando os Testes Unitários
         run: yarn test
 
+  mutation-tests:
+    runs-on: ubuntu-latest
+    needs: [inspecao, unit-tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalando dependências do projeto
+        run: yarn
+
+      - name: Executando os Testes de Mutação
+        run: yarn run test:mutation
+
   e2e-tests:
     runs-on: ubuntu-latest
     needs: [inspecao]
